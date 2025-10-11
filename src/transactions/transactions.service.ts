@@ -16,7 +16,7 @@ export class TransactionsService {
         return this.transactionRepository.findOne({ where: { id } })
     }
 
-    async create(transactionData: CreateTransactionDto): Promise<Transaction> {
+    async create(transactionData: CreateTransactionDto,userId: string,): Promise<Transaction> {
         const transaction = this.transactionRepository.create(transactionData)
         return this.transactionRepository.save(transaction);
     }
