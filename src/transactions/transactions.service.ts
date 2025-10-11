@@ -8,12 +8,15 @@ import { CreateTransactionDto } from './dto/transaction.dto';
 export class TransactionsService {
     constructor(@InjectRepository(Transaction) private readonly transactionRepository: Repository<Transaction>,) { }
 
-    async findAll(): Promise<Transaction[]> {
-        return this.transactionRepository.find();
+    async findAllByUser(userId: string): Promise<Transaction[]> {
+        return this.transactionRepository.find({
+            where: {userId},
+            order: { date: 'DESC' }
+        });
     }
 
-    async findById(id: string): Promise<Transaction | null> {
-        return this.transactionRepository.findOne({ where: { id } })
+    async findById(id: string, userId: string): Promise<Transaction | null> {
+        return this.transactionRepository.findOne({ where: { id , userId} })
     }
 
     async create(transactionData: CreateTransactionDto,userId: string,): Promise<Transaction> {
