@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Get } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateTransactionDto } from './dto/transaction.dto';
@@ -11,6 +11,18 @@ export class TransactionsController {
     @Post()
     createTransaction(@Body() createTransaction: CreateTransactionDto, @Request() req) {
         return this.transactionService.create(createTransaction, req.user.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get()
+    getAllTransactions(@Request() req) {
+        return this.transactionService.findAllByUser(req.user.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':id')
+    getTransactionById(@Request() req) {
+        return this.transactionService.findById(req.params.id, req.user.id);
     }
 }
 
