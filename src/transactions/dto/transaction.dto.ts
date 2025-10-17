@@ -1,4 +1,4 @@
-import { IsEnum, IsString, IsNumber, IsDateString, Min } from 'class-validator';
+import { IsEnum, IsString, IsNumber, IsDateString, Min, IsOptional } from 'class-validator';
 
 export class CreateTransactionDto {
   @IsNumber()
@@ -16,4 +16,29 @@ export class CreateTransactionDto {
 
   @IsDateString()
   date: string;
+}
+
+export class FilterTransactionDto {
+  @IsOptional()
+  @IsEnum(['income', 'expense'])
+  type?: 'income' | 'expense';
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsDateString()
+  StartDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+
+  @IsOptional()
+  page?: number = 1;
+
+  @IsOptional()
+  limit?: number = 10;
 }
