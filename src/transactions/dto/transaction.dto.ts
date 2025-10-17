@@ -29,7 +29,7 @@ export class FilterTransactionDto {
 
   @IsOptional()
   @IsDateString()
-  StartDate?: string;
+  startDate?: string;
 
   @IsOptional()
   @IsDateString()
