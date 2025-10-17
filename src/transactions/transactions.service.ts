@@ -28,7 +28,7 @@ export class TransactionsService {
         await this.transactionRepository.delete({ id, userId });
     }
 
-    async getStatistics(userId: string, filters: FilterTransactionDto) {
+    async findAllWithFilters(userId: string, filters: FilterTransactionDto) {
         const { type, category, startDate, endDate, page = 1, limit = 10 } = filters
         const queryBuilder = this.transactionRepository.createQueryBuilder('transaction').where('transaction.userId = :userId', { userId });
         this.applyFilters(queryBuilder, { type, category, startDate, endDate });
@@ -48,4 +48,71 @@ export class TransactionsService {
         };
 
     }
+
+    async getStatistics(userId: string, startDate?: string, endDate?: string) {
+        const queryBuilder = this.transactionRepository.createQueryBuilder('transaction').where('transaction.userId = :userId', { userId });
+        this.applyDateFilter(queryBuilder, startDate, endDate)
+
+        const totals = await this.transactionRepository
+            .createQueryBuilder('transaction')
+            .select('transaction.type', 'type')
+            .addSelect('SUM(transaction.amount)', 'total')
+            .where('transaction.userId = :userId', { userId })
+            .groupBy('transaction.type')
+            .getRawMany();
+
+        const income = totals.find(t => t.type === 'income')?.total || 0;
+        const expense = totals.find(t => t.type === 'expense')?.total || 0;
+
+        const spendingByCategory = await this.transactionRepository
+            .createQueryBuilder('transaction')
+            .select('transaction.category', 'category')
+            .addSelect('transaction.type', 'type')
+            .addSelect('SUM(transaction.amount)', 'total')
+            .where('transaction.userId = :userId', { userId })
+            .groupBy('transaction.category')
+            .orderBy('total', 'DESC')
+            .getRawMany();
+
+        return {
+            totalIncome: parseFloat(income),
+            totalExpense: parseFloat(expense),
+            balance: parseFloat(income) - parseFloat(expense),
+            spendingByCategory: spendingByCategory.map(item => ({
+                category: item.category,
+                type: item.type,
+                total: parseFloat(item.total)
+            })),
+        };
+    }
+
+
+    private applyFilters(queryBuilder: any, filters: any) {
+        const { type, category, startDate, endDate } = filters;
+        if (type) {
+            queryBuilder.andWhere('transaction.type = :type', { type });
+        }
+        if (category) {
+            queryBuilder.andWhere('transaction.category = :category', { category });
+        }
+
+
+        this.applyDateFilter(queryBuilder, startDate, endDate);
+    }
+
+
+    private applyDateFilter(queryBuilder: any, startDate?: string, endDate?: string) {
+        if (startDate && endDate) {
+            queryBuilder.andWhere('transaction.date BETWEEN :startDate AND :endDate', {
+                startDate,
+                endDate,
+            });
+        } else if (startDate) {
+            queryBuilder.andWhere('transaction.date >= :startDate', { startDate });
+        } else if (endDate) {
+            queryBuilder.andWhere('transaction.date <= :endDate', { endDate });
+        }
+    }
+
+
 }
