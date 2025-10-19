@@ -18,6 +18,32 @@ export class CreateTransactionDto {
   date: string;
 }
 
+export class UpdateTransactionDto {
+  @IsNumber()
+  @Min(0.01)
+  @IsOptional()
+  amount?: number;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsOptional()
+  @IsEnum(['income', 'expense'])
+  type?: 'income' | 'expense';
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsDateString()
+  date?: string;
+}
+
+
+
+
 export class FilterTransactionDto {
   @IsOptional()
   @IsEnum(['income', 'expense'])
