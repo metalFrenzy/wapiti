@@ -15,8 +15,12 @@ export class TransactionsService {
         });
     }
 
-    async findById(id: string, userId: string): Promise<Transaction | null> {
-        return this.transactionRepository.findOne({ where: { id, userId } })
+    async findById(id: string, userId: string): Promise<Transaction> {
+        const transaction = await this.transactionRepository.findOne({ where: { id, userId } })
+        if (!transaction) {
+            throw new NotFoundException('Transaction not found');
+        }
+        return transaction;
     }
 
     async create(transactionData: CreateTransactionDto, userId: string,): Promise<Transaction> {
