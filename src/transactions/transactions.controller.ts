@@ -1,7 +1,7 @@
-import { Body, Controller, Post, UseGuards, Request, Get, Param, Delete, Query } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Get, Param, Delete, Query, Put } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CreateTransactionDto, FilterTransactionDto } from './dto/transaction.dto';
+import { CreateTransactionDto, FilterTransactionDto, UpdateTransactionDto } from './dto/transaction.dto';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -33,6 +33,11 @@ export class TransactionsController {
     @Get('statistics')
     getStatistics(@Request() req, @Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
         return this.transactionService.getStatistics(req.user.id, startDate, endDate)
+    }
+
+    @Put(':id')
+    updateTransactions(@Param('id') id: string, @Body() updateTransaction: UpdateTransactionDto, @Request() req) {
+        return this.transactionService.update(id, req.user.id, updateTransaction)
     }
 
 }
