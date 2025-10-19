@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Repository } from 'typeorm';
-import { CreateTransactionDto, FilterTransactionDto } from './dto/transaction.dto';
+import { CreateTransactionDto, FilterTransactionDto, UpdateTransactionDto } from './dto/transaction.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -26,6 +26,11 @@ export class TransactionsService {
 
     async delete(id: string, userId: string): Promise<void> {
         await this.transactionRepository.delete({ id, userId });
+    }
+
+
+    async update(id: string, userId: string, updateTransaction: UpdateTransactionDto) {
+        return await this.transactionRepository.update({ id, userId }, updateTransaction)
     }
 
     async findAllWithFilters(userId: string, filters: FilterTransactionDto) {
