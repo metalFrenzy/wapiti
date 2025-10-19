@@ -71,6 +71,7 @@ export class TransactionsService {
             .addSelect('SUM(transaction.amount)', 'total')
             .where('transaction.userId = :userId', { userId })
             .groupBy('transaction.category')
+            .addGroupBy('transaction.type')
             .orderBy('total', 'DESC')
             .getRawMany();
 
