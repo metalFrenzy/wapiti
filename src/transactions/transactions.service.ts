@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Repository } from 'typeorm';
@@ -30,7 +30,13 @@ export class TransactionsService {
 
 
     async update(id: string, userId: string, updateTransaction: UpdateTransactionDto) {
-        return await this.transactionRepository.update({ id, userId }, updateTransaction)
+        const transaction = await this.transactionRepository.findOne({ where: { id, userId } })
+        if (!transaction) {
+            throw new NotFoundException('Transaction not found');
+        }
+
+        Object.assign(transaction, updateTransaction);
+        return this.transactionRepository.save(transaction);
     }
 
     async findAllWithFilters(userId: string, filters: FilterTransactionDto) {
